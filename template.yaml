@@ -1,0 +1,10 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Lambdas
+Resources:
+  PythonBoilerplate:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: python-boilerplate.lambda.handler
+      Timeout: 300
+      Runtime: python3.6
