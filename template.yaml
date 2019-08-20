@@ -1,10 +1,61 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Lambdas
+
 Resources:
+
+  LambdaAuthorizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdas.authorizer.index.auth
+      Timeout: 5
+      Runtime: nodejs10.x
+
+  TestLambdaAuthorizerPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - ApiGateway
+      - Authorizer
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: Authorizer
+      Principal: apigateway.amazonaws.com
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: LambdaAuthorizer
+        Authorizers:
+          LambdaAuthorizer:
+            FunctionPayloadType: REQUEST
+            FunctionArn: !GetAtt LambdaAuthorizer.Arn
+            # FunctionInvokeRole: arn:aws:iam::123456789012:role/S3Access # OPTIONAL
+            Identity:
+              # Must specify at least one of Headers, QueryStrings, StageVariables, or Context
+              Headers: # OPTIONAL
+                - Authorization1
+              # QueryStrings: # OPTIONAL
+              #   - Authorization2
+              # StageVariables: # OPTIONAL
+              #   - Authorization3
+              # Context: # OPTIONAL
+              #   - Authorization4
+              ReauthorizeEvery: 0 # OPTIONAL; Service Default: 300
+
   PythonBoilerplate:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: python-boilerplate.lambda.handler
+      Handler: lambdas.python-boilerplate.lambda.handler
       Timeout: 300
       Runtime: python3.6
+      Events:
+        GetApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
+            RestApiId:
+                Ref: ApiGateway
