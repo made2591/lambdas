@@ -15,11 +15,11 @@ Resources:
     Type: AWS::Lambda::Permission
     DependsOn:
       - ApiGateway
-      - Authorizer
+      - LambdaAuthorizer
     Properties:
       Action: lambda:InvokeFunction
       FunctionName:
-        Ref: Authorizer
+        Ref: LambdaAuthorizer
       Principal: apigateway.amazonaws.com
 
   ApiGateway:
@@ -32,18 +32,10 @@ Resources:
           LambdaAuthorizer:
             FunctionPayloadType: REQUEST
             FunctionArn: !GetAtt LambdaAuthorizer.Arn
-            # FunctionInvokeRole: arn:aws:iam::123456789012:role/S3Access # OPTIONAL
             Identity:
-              # Must specify at least one of Headers, QueryStrings, StageVariables, or Context
-              Headers: # OPTIONAL
-                - Authorization1
-              # QueryStrings: # OPTIONAL
-              #   - Authorization2
-              # StageVariables: # OPTIONAL
-              #   - Authorization3
-              # Context: # OPTIONAL
-              #   - Authorization4
-              ReauthorizeEvery: 0 # OPTIONAL; Service Default: 300
+              Headers:
+                - Authorization
+              ReauthorizeEvery: 300
 
   PythonBoilerplate:
     Type: AWS::Serverless::Function
@@ -55,6 +47,8 @@ Resources:
         GetApi:
           Type: Api
           Properties:
+            Auth:
+              Authorizer: LambdaAuthorizer
             Path: /
             Method: get
             RestApiId:

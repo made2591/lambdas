@@ -1,10 +1,28 @@
 const jwt = require('jsonwebtoken');
+const awsParamStore = require('aws-param-store');
 
-// Set in `environment` of serverless.yml
-const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
-const AUTH0_CLIENT_PUBLIC_KEY = process.env.AUTH0_CLIENT_PUBLIC_KEY;
+// get client id and certificate for auth0 from parameter store
+let AUTH0_CLIENT_ID
+let AUTH0_CLIENT_PUBLIC_KEY
+awsParamStore.getParameter(
+    process.env.AUTH0_CLIENT_ID_PARAMETER_NAME, 
+    { region: 'eu-west-1' } 
+).then( (parameter) => {
+    AUTH0_CLIENT_ID = parameter.Value
+}).catch( (err) => {
+    console.log(err);
+});
 
-// Policy helper function
+awsParamStore.getParameter(
+    process.env.AUTH0_CLIENT_PUBLIC_KEY_PARAMETER_NAME, 
+    { region: 'eu-west-1' } 
+).then( (parameter) => {
+    AUTH0_CLIENT_PUBLIC_KEY = parameter.Value
+}).catch( (err) => {
+    console.log(err);
+});
+
+// policy helper function
 const generatePolicy = (principalId, effect, resource) => {
   const authResponse = {};
   authResponse.principalId = principalId;
@@ -22,8 +40,8 @@ const generatePolicy = (principalId, effect, resource) => {
   return authResponse;
 };
 
-// Reusable Authorizer function, set on `authorizer` field in serverless.yml
-module.exports.auth = (event, context, callback) => {
+// authorizer function
+module.exports.handler = (event, callback) => {
   console.log('event', event);
   if (!event.authorizationToken) {
     return callback('Unauthorized');
@@ -57,31 +75,3 @@ module.exports.auth = (event, context, callback) => {
     return callback('Unauthorized');
   }
 };
-
-// Public API
-module.exports.publicEndpoint = (event, context, callback) => callback(null, {
-  statusCode: 200,
-  headers: {
-      /* Required for CORS support to work */
-    'Access-Control-Allow-Origin': '*',
-      /* Required for cookies, authorization headers with HTTPS */
-    'Access-Control-Allow-Credentials': true,
-  },
-  body: JSON.stringify({
-    message: 'Hi ⊂◉‿◉つ from Public API',
-  }),
-});
-
-// Private API
-module.exports.privateEndpoint = (event, context, callback) => callback(null, {
-  statusCode: 200,
-  headers: {
-      /* Required for CORS support to work */
-    'Access-Control-Allow-Origin': '*',
-      /* Required for cookies, authorization headers with HTTPS */
-    'Access-Control-Allow-Credentials': true,
-  },
-  body: JSON.stringify({
-    message: 'Hi ⊂◉‿◉つ from Private API. Only logged in users can see this',
-  }),
-});
