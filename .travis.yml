@@ -7,7 +7,7 @@ install:
   - pip install awscli
   - pip install aws-sam-cli
 script:
-  - sam validate
+  # - sam validate # due to https://github.com/awslabs/aws-sam-cli/issues/803
   - sam package --template-file template.yaml --s3-bucket $LAMBDAS_BUCKET --output-template-file packaged.yaml
 deploy:
   provider: script
