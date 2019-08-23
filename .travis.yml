@@ -1,7 +1,7 @@
 language: python
 
 python:
-  - '2.7'
+  - '3.7'
 
 branches:
   only: master
@@ -17,10 +17,8 @@ env:
   - secure: Nvxy/ZjsJcdhA9HG9bccP8ZHNmJiMfLLJexs1g3qnHo67kofkmPeiLWQw1dOErDL7s+kM8IYG0nNMjV3OPwdVcVNV96/Veo90nTNduelQKnJZm9Tf02hNXKd4MG7IK8Pzey2eICcCfEI/H2iMgQE7Aq/jJAEHQWr99iM11JF9b9WmQQkoKLqRealtf8k7Q/u7zsoT5fd9McMYz+92/70msJuqHvGHLsryaYXnrVxVi+PEXLg6MV+M85Fi1ZCqF8sFS9zoQoJMWNOUrIPOne1chUdn7LgPodrlWlxoXhDXUeBEn06XD/mHHD6/mMRnQuy3he1DuRpY/3Dt9FUjtlN/cGoqxfBXMoImJRrlHbXuqQeW2nDGY1P2zrcJaIMUyRJ3EVKC/hcK3WmQLPOhFiW5kufb9zaLbz4sN5hCZ2nczzrRYoYgUszfjUg2sBqRDaHSnQ1OJu5GiGWz7jaUa+E4WYIOC059lAM4fWc+pzqZlySeEASKj3LuO6oUBGSUJWw35ONtrEAwVoVlQxhZyBp2zJd5c2Wx96XaM0tJpgIl/yO+t3bNMyqcxsGQBsnEsckTH0KbAQgv2wMnM64guBcwHcoQS8uXtygFbOv+IJV66dz0HE5yyq0Sn13qw5A30x+pJcTZWKwerG5Uco8XciKsmnyxo+VrKbrBz+NhhMSRxk=
 
 install:
-  - python --version
-  - pip --version
-  - pip install --user awscli
-  - pip install --user aws-sam-cli
+  - pip install awscli
+  - pip install aws-sam-cli
 
 script:
   - sam validate
