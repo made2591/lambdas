@@ -18,15 +18,13 @@ env:
 
 install:
   - pip install awscli
-  - pip install aws-sam-cli
 
 script:
-  - sam validate
-  - sam package --template-file template.yaml --s3-bucket $LAMBDAS_BUCKET --output-template-file packaged.yaml
+  - aws cloudformation package --template-file template.yaml --output-template-file packaged.yaml --s3-bucket $LAMBDAS_BUCKET
 
 deploy:
   provider: script
-  script: sam deploy --template-file packaged.yaml --stack-name lambdas --capabilities CAPABILITY_IAM
+  script: aws cloudformation deploy --template-file packaged.yaml --stack-name lambdas --capabilities CAPABILITY_IAM
   on:
     branch: master
 
