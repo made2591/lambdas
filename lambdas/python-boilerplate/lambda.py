@@ -1,6 +1,9 @@
+import json 
+
 def handler(event, context):
-    message = 'Hello {} {}!'.format(event['first_name'],
-                                    event['last_name'])
+    print(json.dumps(event))
     return {
-        'message' : message
+        "statusCode": 200,
+        "body": json.dumps(event),
+        "headers": {}
     }

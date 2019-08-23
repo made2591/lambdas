@@ -7,8 +7,13 @@ Resources:
   LambdaAuthorizer:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambdas.authorizer.index.auth
-      Timeout: 5
+      Handler: lambdas/authorizer/index.handler
+      Environment:
+        Variables:
+          TOKEN_ISSUER: $TOKEN_ISSUER
+          JWKS_URI: $JWKS_URI
+          AUDIENCE: $AUDIENCE
+      Timeout: 30
       Runtime: nodejs10.x
 
   TestLambdaAuthorizerPermission:
@@ -27,29 +32,28 @@ Resources:
     Properties:
       StageName: Dev
       Auth:
-        DefaultAuthorizer: LambdaAuthorizer
+        DefaultAuthorizer: ApiGatewayAuthorizer
         Authorizers:
-          LambdaAuthorizer:
-            FunctionPayloadType: REQUEST
+          ApiGatewayAuthorizer:
+            FunctionPayloadType: TOKEN
             FunctionArn: !GetAtt LambdaAuthorizer.Arn
             Identity:
               Headers:
                 - Authorization
-              ReauthorizeEvery: 300
+              ReauthorizeEvery: 3600
 
   PythonBoilerplate:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambdas.python-boilerplate.lambda.handler
+      CodeUri: ./lambdas/python-boilerplate/
+      Handler: lambda.handler
       Timeout: 300
       Runtime: python3.6
       Events:
-        GetApi:
+        PostApi:
           Type: Api
           Properties:
-            Auth:
-              Authorizer: LambdaAuthorizer
-            Path: /
-            Method: get
             RestApiId:
-                Ref: ApiGateway
+              !Ref ApiGateway
+            Path: /
+            Method: post
